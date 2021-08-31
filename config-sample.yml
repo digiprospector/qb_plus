@@ -1,0 +1,28 @@
+web_server:
+  bind: 0.0.0.0
+  port: 5050
+  web_ui: yes
+
+tasks:
+  lemonhd:
+    rss: "you-rss-url"
+    accept_all: true
+    plugin_priority:
+      if: 100
+      qb_plus: 50
+    if:
+      - size > 30 * 1024 *1024 * 1024: reject
+    qb_plus:
+      url: "http://192.168.0.38:8080"
+      username: admin
+      password: adminadmin
+      max_downloading: 3
+      delete_less_than: 100000000000
+      category: RSS
+      tags: lemon
+
+
+schedules:
+  - tasks: "lemonhd"
+    interval:
+      minutes: 3
