@@ -3,26 +3,49 @@ web_server:
   port: 5050
   web_ui: yes
 
-tasks:
-  lemonhd:
-    rss: "you-rss-url"
-    accept_all: true
+templates:
+  qbittorrent_web:
+    qb_plus:
+      url: "http://192.168.0.1:8080"
+      username: admin
+      password: adminadmin
+      category: RSS
     plugin_priority:
       if: 100
       qb_plus: 50
+      
+tasks:
+  del-torrents:
+    qb_plus:
+      task_type: "del"
+      task_del_less_than: 60000000000
+      task_del_hr_list:
+        - tags: "opencd"
+          hr_hours: 48
+        - tags: "hddolby-hr"
+          hr_hours: 36
+    template: qbittorrent_web
+    
+  hddolby:
+    rss: "<rss-url>"
+    accept_all: true
     if:
       - size > 30 * 1024 *1024 * 1024: reject
     qb_plus:
-      url: "http://192.168.0.38:8080"
-      username: admin
-      password: adminadmin
-      max_downloading: 3
-      delete_less_than: 100000000000
+      task_type: "add"
+      task_add_category_max: 5
+      task_add_tags_max: 3
       category: RSS
-      tags: lemon
-
+      tags: hddolby
+      task_add_remember: False
+      hr_test_string_in_url: 'www.hddolby.com'
+      hr_tag: "hddolby-hr"
+      hr_check_url: 'https://www.hddolby.com/details.php?id={}&hit=1'
+      hr_sitename: 'hddolby'
+      cookie: '<hddolby-cookies>'
+    template: qbittorrent_web
 
 schedules:
-  - tasks: "lemonhd"
+  - tasks: "hddolby"
     interval:
       minutes: 3

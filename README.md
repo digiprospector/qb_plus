@@ -41,12 +41,4 @@ docker restart flexget
 ```
 
 ## config参数
-``` ini
-url: "http://192.168.0.38:8080" #qbittorrent的url
-username: admin                 #qbittorrent账号
-password: adminadmin            #qbittorrent密码
-max_downloading: 3              #最大同时下载数量
-delete_less_than: 100000000000  #最小硬盘容量，小于这个容量就删除最早的下载种子
-category: RSS                   #添加的时候的catagory
-tags: lemon                     #添加的时候的tags
-```
+参考config-sample.yml
