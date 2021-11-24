@@ -24,6 +24,7 @@ tasks:
           hr_hours: 48
         - tags: "hddolby-hr"
           hr_hours: 36
+      stalled_hours: 16
     template: qbittorrent_web
     
   hddolby:

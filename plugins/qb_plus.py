@@ -1,3 +1,4 @@
+from logging import log
 from loguru import logger
 
 from flexget import plugin
@@ -55,6 +56,18 @@ class FilterQbplus:
         if config.get('task_type') == "del":
             now = int(time.time())
             self.login(config)
+
+            #delete stalled
+            if config.get('stalled_hours'):
+                torrents = self.client.torrents_info(status_filter='stalled_downloading', category=config.get('category'), reverse=False)
+                for t in torrents:
+                    if now - t['added_on'] > config.get('stalled_hours') * 3600:
+                        logger.info('torrent {} will be deleted because it stall too long {:.02f}'.format(t['name'], (now - t['added_on'])/ 3600))
+                        #self.client.torrents_delete(True, t['hash'])
+                    else:
+                        logger.info('torrent {} stalled {:.02f} hours'.format(t['name'], (now - t['added_on'])/ 3600))
+
+            #free space
             free_space_on_disk = self.client.sync_maindata()['server_state']['free_space_on_disk']
             if (free_space_on_disk < config.get('task_del_less_than')):
                 logger.info("disk free {} less than task_del_less_than({}), will delete some torrents".format(free_space_on_disk, config.get('task_del_less_than')))
@@ -67,10 +80,10 @@ class FilterQbplus:
                             if hr['tags'] in t['tags']:
                                 logger.info('seeding time {}'.format(t['seeding_time']))
                                 if t['seeding_time'] < hr['hr_hours'] * 3600:
-                                    logger.info('torrent {} keep for H&R, seed time {} < need seed time {}'.format(t['name'], (t['seeding_time']) / 3600, hr['hr_hours']))
+                                    logger.info('torrent {} keep for H&R, seed time {:.02f} < need seed time {}'.format(t['name'], (t['seeding_time']) / 3600, hr['hr_hours']))
                                     del_torrent = False
                                 else:
-                                    logger.info('torrent {} can be deleted, seed time {} >= need seed time {}'.format(t['name'], (t['seeding_time']) / 3600, hr['hr_hours']))
+                                    logger.info('torrent {} can be deleted, seed time {:.02f} >= need seed time {}'.format(t['name'], (t['seeding_time']) / 3600, hr['hr_hours']))
 
                         if del_torrent:
                             logger.info("delete torrent {} size {}.".format(t['name'], t['total_size']))
@@ -78,6 +91,9 @@ class FilterQbplus:
                             free_space_on_disk += int(t['total_size'])
                     else:
                         break
+            
+
+
 
     def check_hddolby_hr(self, config, url):
         headers = {
