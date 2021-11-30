@@ -63,7 +63,7 @@ class FilterQbplus:
                 for t in torrents:
                     if now - t['added_on'] > config.get('stalled_hours') * 3600:
                         logger.info('torrent {} will be deleted because it stall too long {:.02f}'.format(t['name'], (now - t['added_on'])/ 3600))
-                        #self.client.torrents_delete(True, t['hash'])
+                        self.client.torrents_delete(True, t['hash'])
                     else:
                         logger.info('torrent {} stalled {:.02f} hours'.format(t['name'], (now - t['added_on'])/ 3600))
 
